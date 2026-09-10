@@ -1,6 +1,121 @@
 {
   "course": "unipay-oop",
   "format": 1,
-  "labs": {},
+  "labs": {
+    "1": {
+      "account": {
+        "path": "bundles/fbed64cc00ebd527e05e2b9f47304296e96091077b26022ba03fb74a30a87262.json",
+        "sha256": "fbed64cc00ebd527e05e2b9f47304296e96091077b26022ba03fb74a30a87262",
+        "size": 14540,
+        "source_commit": "d25eb9b55917d56d3de1f042ac9102a5345a85c2",
+        "source_tree": "e7c46c3eb938dfbea061c5404d3ab8af42a67035",
+        "variant": "account"
+      },
+      "audit": {
+        "path": "bundles/b0c430abc3dfcf5ab32b1b414b12e2d1e9a163ae37d7c9fa6b34aa7bfc19e77b.json",
+        "sha256": "b0c430abc3dfcf5ab32b1b414b12e2d1e9a163ae37d7c9fa6b34aa7bfc19e77b",
+        "size": 13800,
+        "source_commit": "d25eb9b55917d56d3de1f042ac9102a5345a85c2",
+        "source_tree": "e7c46c3eb938dfbea061c5404d3ab8af42a67035",
+        "variant": "audit"
+      },
+      "authorization": {
+        "path": "bundles/25f92e36406f1ef5a0d44bd22e32cebcaaffa9271ef18efc15853d39d20e354d.json",
+        "sha256": "25f92e36406f1ef5a0d44bd22e32cebcaaffa9271ef18efc15853d39d20e354d",
+        "size": 13932,
+        "source_commit": "d25eb9b55917d56d3de1f042ac9102a5345a85c2",
+        "source_tree": "e7c46c3eb938dfbea061c5404d3ab8af42a67035",
+        "variant": "authorization"
+      },
+      "card": {
+        "path": "bundles/b07fc11b49ab69c1737b56b7d98156ccc03f7a9d9a57ac06df8d9b1d7263951e.json",
+        "sha256": "b07fc11b49ab69c1737b56b7d98156ccc03f7a9d9a57ac06df8d9b1d7263951e",
+        "size": 14708,
+        "source_commit": "d25eb9b55917d56d3de1f042ac9102a5345a85c2",
+        "source_tree": "e7c46c3eb938dfbea061c5404d3ab8af42a67035",
+        "variant": "card"
+      },
+      "clearing": {
+        "path": "bundles/96bd1d1f39defd3faf594354e61a4e54de67bdb1692cea533032bf378d5fd72c.json",
+        "sha256": "96bd1d1f39defd3faf594354e61a4e54de67bdb1692cea533032bf378d5fd72c",
+        "size": 15028,
+        "source_commit": "d25eb9b55917d56d3de1f042ac9102a5345a85c2",
+        "source_tree": "e7c46c3eb938dfbea061c5404d3ab8af42a67035",
+        "variant": "clearing"
+      },
+      "customer": {
+        "path": "bundles/76116ee031df86df2f4e1c084cd59b206443ff5d461801e98bb0568796ce6f76.json",
+        "sha256": "76116ee031df86df2f4e1c084cd59b206443ff5d461801e98bb0568796ce6f76",
+        "size": 14564,
+        "source_commit": "d25eb9b55917d56d3de1f042ac9102a5345a85c2",
+        "source_tree": "e7c46c3eb938dfbea061c5404d3ab8af42a67035",
+        "variant": "customer"
+      },
+      "fraud": {
+        "path": "bundles/f92816d0a785a34198e5d6d19b8c3497747be5a3ef4ce5fea9b7d93467e3888d.json",
+        "sha256": "f92816d0a785a34198e5d6d19b8c3497747be5a3ef4ce5fea9b7d93467e3888d",
+        "size": 13620,
+        "source_commit": "d25eb9b55917d56d3de1f042ac9102a5345a85c2",
+        "source_tree": "e7c46c3eb938dfbea061c5404d3ab8af42a67035",
+        "variant": "fraud"
+      },
+      "fx": {
+        "path": "bundles/2c95791861edea7d436110defc56fa85d87d2c17c8c72f0232f5766d8bb8a807.json",
+        "sha256": "2c95791861edea7d436110defc56fa85d87d2c17c8c72f0232f5766d8bb8a807",
+        "size": 13316,
+        "source_commit": "d25eb9b55917d56d3de1f042ac9102a5345a85c2",
+        "source_tree": "e7c46c3eb938dfbea061c5404d3ab8af42a67035",
+        "variant": "fx"
+      },
+      "ledger": {
+        "path": "bundles/0ddbaf57ed7056f450d7420fda4a33c333fe37fef6579c42d0a9e21e639051d2.json",
+        "sha256": "0ddbaf57ed7056f450d7420fda4a33c333fe37fef6579c42d0a9e21e639051d2",
+        "size": 14284,
+        "source_commit": "d25eb9b55917d56d3de1f042ac9102a5345a85c2",
+        "source_tree": "e7c46c3eb938dfbea061c5404d3ab8af42a67035",
+        "variant": "ledger"
+      },
+      "limits": {
+        "path": "bundles/4e6f90d101879b6b7538d67ef0006db89bb279377594521ff61c6ef5c0bc2e55.json",
+        "sha256": "4e6f90d101879b6b7538d67ef0006db89bb279377594521ff61c6ef5c0bc2e55",
+        "size": 12164,
+        "source_commit": "d25eb9b55917d56d3de1f042ac9102a5345a85c2",
+        "source_tree": "e7c46c3eb938dfbea061c5404d3ab8af42a67035",
+        "variant": "limits"
+      },
+      "merchant": {
+        "path": "bundles/595ba8e31e05cdb7e0cc576ab4db121fefef9537b1522460f31e19fc032219aa.json",
+        "sha256": "595ba8e31e05cdb7e0cc576ab4db121fefef9537b1522460f31e19fc032219aa",
+        "size": 14552,
+        "source_commit": "d25eb9b55917d56d3de1f042ac9102a5345a85c2",
+        "source_tree": "e7c46c3eb938dfbea061c5404d3ab8af42a67035",
+        "variant": "merchant"
+      },
+      "notification": {
+        "path": "bundles/ea49bf198e3b52b693468300453390d7226354246e4e5d42db986d8d715da759.json",
+        "sha256": "ea49bf198e3b52b693468300453390d7226354246e4e5d42db986d8d715da759",
+        "size": 11864,
+        "source_commit": "d25eb9b55917d56d3de1f042ac9102a5345a85c2",
+        "source_tree": "e7c46c3eb938dfbea061c5404d3ab8af42a67035",
+        "variant": "notification"
+      },
+      "reporting": {
+        "path": "bundles/62acf16711c6bc31570dbafe583277837381aed5b20dce22926c29436e70a9c4.json",
+        "sha256": "62acf16711c6bc31570dbafe583277837381aed5b20dce22926c29436e70a9c4",
+        "size": 14424,
+        "source_commit": "d25eb9b55917d56d3de1f042ac9102a5345a85c2",
+        "source_tree": "e7c46c3eb938dfbea061c5404d3ab8af42a67035",
+        "variant": "reporting"
+      },
+      "settlement": {
+        "path": "bundles/e3037a47a5bda5ccc078f0f6fd95ab264f1dbb9c743d82bc45aeee6e06023778.json",
+        "sha256": "e3037a47a5bda5ccc078f0f6fd95ab264f1dbb9c743d82bc45aeee6e06023778",
+        "size": 14220,
+        "source_commit": "d25eb9b55917d56d3de1f042ac9102a5345a85c2",
+        "source_tree": "e7c46c3eb938dfbea061c5404d3ab8af42a67035",
+        "variant": "settlement"
+      }
+    }
+  },
   "minimum_client": 1
 }

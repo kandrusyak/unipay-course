@@ -7,6 +7,7 @@ import os
 from pathlib import Path, PurePosixPath
 import re
 import sys
+import stat
 
 VARIANTS = frozenset(('customer', 'card', 'account', 'merchant', 'authorization',
                      'limits', 'fraud', 'fx', 'ledger', 'notification', 'audit',
@@ -34,6 +35,14 @@ def no_links(path):
     for part in (path, *path.parents):
         if part.is_symlink() or (hasattr(part, 'is_junction') and part.is_junction()):
             raise DeliveryError(f'Ссылки и junction не поддерживаются: {part}')
+        # Path.is_junction появился позже Python 3.10. Проверяем Windows
+        # reparse-атрибут без перехода по ссылке и на старых интерпретаторах.
+        try:
+            attributes = getattr(part.lstat(), 'st_file_attributes', 0)
+        except FileNotFoundError:
+            continue
+        if attributes & stat.FILE_ATTRIBUTE_REPARSE_POINT:
+            raise DeliveryError(f'Ссылки и reparse points не поддерживаются: {part}')
 
 
 def absolute_folder(path):
@@ -454,8 +463,8 @@ def main():
     parser.add_argument('--version', action='version', version='UniPay client 1')
     args = parser.parse_args()
     try:
-        if sys.version_info < (3, 13):
-            raise DeliveryError('Для курса нужен Python 3.13 или новее. Проверьте: python --version.')
+        if sys.version_info < (3, 10):
+            raise DeliveryError('Для курса нужен Python 3.10 или новее. Проверьте: python --version.')
         if args.yes and args.dry_run:
             raise DeliveryError('Выберите --yes или --dry-run, не оба сразу.')
         catalog = validate_catalog(decode_json(download('catalog.json', MAX_CATALOG)))
