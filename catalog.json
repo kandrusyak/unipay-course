@@ -1,0 +1,30 @@
+{
+  "course": "unipay-oop",
+  "format": 1,
+  "labs": {
+    "1": {
+      "path": "releases/lab01-fddb8d86fc205ffa3c63812f266d13d9f052f644e3703c41ac984e46b9427dac.json.xz",
+      "sha256": "fddb8d86fc205ffa3c63812f266d13d9f052f644e3703c41ac984e46b9427dac",
+      "size": 39888,
+      "source_commit": "e3d54c5d02148b25a38abd73e4c83a24f816b7ac",
+      "source_tree": "40cc33540fbe329ad11b91609a17fb4979767d7c"
+    }
+  },
+  "min_client": 1,
+  "variants": [
+    "customer",
+    "card",
+    "account",
+    "merchant",
+    "authorization",
+    "limits",
+    "fraud",
+    "fx",
+    "ledger",
+    "notification",
+    "audit",
+    "reporting",
+    "clearing",
+    "settlement"
+  ]
+}
