@@ -24,13 +24,14 @@ jobs:
       - run: python _maintenance/run.py
       - run: python -m pytest -q checks/test_guide.py
       - run: python check_public.py --run-lab1-tests
-      - name: Commit only prepared public files and retire this one-use workflow
+      - name: Commit prepared content only; do not modify workflows with the Actions token
         shell: bash
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git rm -r _maintenance .github/workflows/repack-guide-once.yml
-          git add bundles catalog.json README.md unipay.py START_HERE.pdf .gitattributes check_public.py checks .github/workflows/public.yml
+          git rm -r _maintenance
+          git restore .github/workflows/public.yml
+          git add bundles catalog.json README.md unipay.py START_HERE.pdf .gitattributes check_public.py checks
           git diff --cached --check
           git commit -m 'Repack Lab1 guide as Markdown and PDF; preserve student solutions'
           git push origin HEAD:refs/heads/maintenance/repack-start-guide
