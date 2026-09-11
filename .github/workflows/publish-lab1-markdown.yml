@@ -19,14 +19,18 @@ jobs:
       - name: Repack the fourteen Lab1 bundles
         shell: python
         run: |
-          import base64, copy, hashlib, json, lzma
+          import base64, copy, hashlib, importlib.util, json, lzma
           from pathlib import Path
-          import unipay
 
-          ROOT = Path('.')
+          ROOT = Path('.').resolve()
+          spec = importlib.util.spec_from_file_location('unipay_public_client', ROOT/'unipay.py')
+          unipay = importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(unipay)
+
           SOURCE_COMMIT = 'e23cdef6077fcf7e62683a1976ecc69782840e1d'
           SOURCE_TREE = '5a0d8e99269de61e65260a8bb43ee056033b88ad'
           DOCS = ('TASK.md', 'REFERENCE.md', 'STARTER-STATE.md')
+          DOC_PATHS = {f'labs/lab01/{name}' for name in DOCS}
 
           payload = json.loads(lzma.decompress(base64.b64decode(
               (ROOT/'checks/lab01-docs-update.txt').read_text(encoding='ascii').strip()
@@ -60,7 +64,7 @@ jobs:
                   files[name] = text
                   manifest['files'][name] = hashlib.sha256(text.encode('utf-8')).hexdigest()
               for name, data in before.items():
-                  if name not in {f'labs/lab01/{x}' for x in DOCS}:
+                  if name not in DOC_PATHS:
                       assert unipay.public_file_bytes(name, files[name]) == data
               document = dict(format=1, course='unipay-oop', lab=1, variant=variant,
                               manifest=manifest, files=files)
@@ -72,15 +76,16 @@ jobs:
               checked_manifest, checked_files = unipay.decode_public_bundle(wrapper, entry, 1, variant)
               assert checked_manifest == manifest
               assert checked_files == files
-              assert 'START_HERE.pdf' in files and unipay.public_file_bytes('START_HERE.pdf', files['START_HERE.pdf']).startswith(b'%PDF-')
+              assert 'START_HERE.pdf' in files
+              assert unipay.public_file_bytes('START_HERE.pdf', files['START_HERE.pdf']).startswith(b'%PDF-')
               path = ROOT / entry['path']
               path.parent.mkdir(parents=True, exist_ok=True)
               path.write_bytes(wrapper)
               new_entries[variant] = entry
 
-          for path in old_paths:
-              if path.exists() and str(path.relative_to(ROOT)).replace('\\','/') not in {e['path'] for e in new_entries.values()}:
-                  path.unlink()
+          new_paths = {ROOT / entry['path'] for entry in new_entries.values()}
+          for path in old_paths - new_paths:
+              path.unlink()
           catalog['labs']['1'] = new_entries
           (ROOT/'catalog.json').write_text(json.dumps(catalog, ensure_ascii=False, indent=2, sort_keys=True) + '\n', encoding='utf-8')
           unipay.validate_catalog(unipay.decode_json((ROOT/'catalog.json').read_bytes()))
