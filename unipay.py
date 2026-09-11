@@ -106,7 +106,7 @@ def load_bundle(directory):
             raise DeliveryError(f'Некорректная SHA-256: {name}')
     for name in hashes:
         if not (name.startswith(prefix) or name == workflow
-                or (manifest['lab'] == 1 and name in ROOT_FILES)):
+                or (manifest['lab'] == 1 and name in (ROOT_FILES | {'START_HERE.pdf'}))):
             raise DeliveryError(f'Файл вне выдаваемой работы: {name}')
     required = {prefix + 'TASK.md', prefix + 'app/api.py', prefix + 'tests/test_contract.py', workflow}
     if manifest['lab'] == 1:
@@ -258,7 +258,7 @@ import urllib.request
 import lzma
 
 PUBLIC_ROOT = 'https://raw.githubusercontent.com/kandrusyak/unipay-course/main/'
-CLIENT_VERSION = 1
+CLIENT_VERSION = 2
 MAX_CATALOG = 128 * 1024
 MAX_DOWNLOAD = 4 * 1024 * 1024
 MAX_UNPACKED = 16 * 1024 * 1024
@@ -394,7 +394,7 @@ def decode_public_bundle(data, entry, number, variant):
     names = set()
     for name, text in files.items():
         relative_file(name)
-        if name.casefold() in names or not isinstance(text, str) or len(text.encode('utf-8')) > MAX_DOWNLOAD:
+        if name.casefold() in names or len(public_file_bytes(name, text)) > MAX_DOWNLOAD:
             raise DeliveryError('Неоднозначное имя или слишком большой файл.')
         names.add(name.casefold())
     return manifest, files
@@ -411,7 +411,7 @@ def current_variant(root):
     return value['variant']
 
 
-def install(number, variant, target, catalog, *, yes=False, dry_run=False, fetch=download, ask=input):
+def install(number, variant, target, catalog, *, yes=False, dry_run=False, fetch=download, ask=input, update_guide=False):
     """Получить только выбранный номер. До подтверждения нет изменений в репозитории."""
     root = absolute_folder(target)
     chosen = current_variant(root)
@@ -429,23 +429,173 @@ def install(number, variant, target, catalog, *, yes=False, dry_run=False, fetch
         for name, text in files.items():
             path = bundle / 'payload' / relative_file(name)
             path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_bytes(text.encode('utf-8'))
-        preview = apply_bundle(bundle, root, False)
+            path.write_bytes(public_file_bytes(name, text))
+        installer = apply_guide_update if update_guide else apply_bundle
+        preview = installer(bundle, root, False)
         if preview['already_applied']:
             print(f'ЛР{number} уже получена в этой версии. Ваше решение не изменено.')
             return preview
         print(f'{variant}: ЛР{number}. Источник {manifest["source_commit"][:12]}. Папка: {root}')
         for name in preview['files']:
-            print('  + ' + name)
+            print(('  ~ ' if update_guide else '  + ') + name)
         if dry_run:
             print('Только просмотр: файлы репозитория не менялись.')
             return preview
-        if not yes and ask('Добавить эти файлы? [y/N]: ').strip().lower() not in ('y', 'yes', 'д', 'да'):
+        if not yes and ask('Обновить только памятку? [y/N]: ' if update_guide else 'Добавить эти файлы? [y/N]: ').strip().lower() not in ('y', 'yes', 'д', 'да'):
             print('Отменено. Файлы репозитория не менялись.')
             return preview
-        result = apply_bundle(bundle, root, True)
+        result = installer(bundle, root, True)
     print(f'ЛР{number} получена. Откройте labs/lab{number:02d}/TASK.md.')
     print(f'Проверка: python check.py lab{number:02d}. Git status, commit и push выполните сами.')
+    return result
+
+
+
+"""Включается в один unipay.py; обновляет только памятку при явном --update-guide."""
+GUIDE_FILES = frozenset(('START_HERE.md', 'START_HERE.pdf'))
+
+
+def public_file_bytes(name, value):
+    """Текстовый формат остаётся прежним; бинарным может быть только PDF памятки."""
+    if isinstance(value, str):
+        data = value.encode('utf-8')
+    elif (name == 'START_HERE.pdf' and isinstance(value, dict)
+          and set(value) == {'encoding', 'data'} and value['encoding'] == 'base64'
+          and isinstance(value['data'], str)):
+        if len(value['data']) > MAX_DOWNLOAD * 2:
+            raise DeliveryError('PDF превышает предел загрузки.')
+        try:
+            data = base64.b64decode(value['data'], validate=True)
+        except (ValueError, binascii.Error) as error:
+            raise DeliveryError('Некорректная упаковка PDF.') from error
+        if not data.startswith(b'%PDF-') or not data.rstrip().endswith(b'%%EOF'):
+            raise DeliveryError('Полученный файл не является PDF памятки.')
+    else:
+        raise DeliveryError('Неподдерживаемый формат файла: ' + name)
+    if len(data) > MAX_DOWNLOAD:
+        raise DeliveryError('Файл превышает предел загрузки.')
+    return data
+
+
+def guide_plan(root, manifest, data, own_lock=False):
+    """Сопоставить старую квитанцию с разрешённой правкой; не читать решения."""
+    if manifest['lab'] != 1:
+        raise DeliveryError('Обновление памятки относится только к ЛР1.')
+    if (root / LOCK).exists() and not own_lock:
+        raise DeliveryError('Папка занята другой установкой. Ничего не изменено.')
+    if read_json(target_path(root, '.unipay/course.json')) != course(manifest['variant']):
+        raise DeliveryError('Не совпадает вариант курса.')
+    receipt_name = '.unipay/issues/lab01.json'
+    receipt_path = target_path(root, receipt_name)
+    before_receipt = receipt_path.read_bytes()
+    old = read_json(receipt_path)
+    if old == manifest:
+        return {}, {}  # Повтор не восстанавливает даже изменённую памятку.
+    update = manifest.get('guide_update')
+    if (not isinstance(update, dict) or set(update) != {'previous_manifest_sha256'}
+            or update['previous_manifest_sha256'] != digest(json_bytes(old))):
+        raise DeliveryError('Эта версия выдачи не подходит для обновления памятки. Обратитесь к преподавателю.')
+    old_fixed = {k: v for k, v in old.items() if k not in ('files', 'guide_update')}
+    new_fixed = {k: v for k, v in manifest.items() if k not in ('files', 'guide_update')}
+    old_other = {k: v for k, v in old['files'].items() if k not in GUIDE_FILES}
+    new_other = {k: v for k, v in manifest['files'].items() if k not in GUIDE_FILES}
+    if old_fixed != new_fixed or old_other != new_other:
+        raise DeliveryError('Обновление затрагивает не только памятку. Автоматическое применение запрещено.')
+    if not GUIDE_FILES <= data.keys() or not GUIDE_FILES <= manifest['files'].keys():
+        raise DeliveryError('Не хватает Markdown или PDF памятки.')
+    for name, expected in manifest['runtime_sha256'].items():
+        if digest(target_path(root, name).read_bytes()) != expected:
+            raise DeliveryError('Файл запуска изменён: ' + name)
+    changes, before = {}, {}
+    for name in sorted(GUIDE_FILES):
+        path = target_path(root, name)
+        if path.exists() and not path.is_file():
+            raise DeliveryError('Путь памятки занят не файлом: ' + name)
+        current = path.read_bytes() if path.exists() else None
+        wanted = data[name]
+        if current == wanted:
+            continue
+        previous_hash = old['files'].get(name)
+        if current is None:
+            if previous_hash is not None:
+                raise DeliveryError('Прежняя памятка удалена: ' + name + '. Нужен ручной разбор.')
+        elif previous_hash is None or digest(current) != previous_hash:
+            raise DeliveryError('В памятке есть свои изменения: ' + name + '. Они не перезаписаны.')
+        changes[name], before[name] = wanted, current
+    # История старой выдачи сохраняется отдельно; квитанция нового состояния последняя.
+    history = '.unipay/history/lab01-' + update['previous_manifest_sha256'] + '.json'
+    history_path = target_path(root, history)
+    if history_path.exists():
+        if not history_path.is_file() or history_path.read_bytes() != json_bytes(old):
+            raise DeliveryError('Конфликт сохранённой квитанции: ' + history)
+    else:
+        changes[history], before[history] = json_bytes(old), None
+    changes[receipt_name], before[receipt_name] = json_bytes(manifest), before_receipt
+    return changes, before
+
+
+def replace_guide_file(path, content):
+    """Один атомарный rename в том же каталоге; файл назначения предварительно проверен."""
+    descriptor, temporary_name = tempfile.mkstemp(prefix='.unipay-guide-', dir=path.parent)
+    temporary = Path(temporary_name)
+    try:
+        with os.fdopen(descriptor, 'wb') as output:
+            output.write(content)
+        no_links(path)
+        os.replace(temporary, path)
+    finally:
+        if temporary.exists():
+            temporary.unlink()
+
+
+def apply_guide_update(bundle, target, apply=False):
+    manifest, data = load_bundle(bundle)
+    root = absolute_folder(target)
+    changes, before = guide_plan(root, manifest, data)
+    result = dict(variant=manifest['variant'], lab=1, target=str(root), files=sorted(changes),
+                  applied=False, already_applied=not changes, guide_only=True)
+    if not apply or not changes:
+        return result
+    lock = target_path(root, LOCK)
+    try:
+        handle = lock.open('xb')
+    except FileExistsError as error:
+        raise DeliveryError('Одновременно уже выполняется другая выдача.') from error
+    created_dirs, written = [], []
+    release_lock = True
+    try:
+        with handle:
+            handle.write(b'UniPay guide update in progress\n')
+        # Повторная проверка после lock. Файлы лабораторных вообще не заменяются.
+        changes, before = guide_plan(root, manifest, data, own_lock=True)
+        for name, content in changes.items():
+            path = target_path(root, name)
+            current = path.read_bytes() if path.exists() else None
+            if current != before[name]:
+                raise DeliveryError('Файл изменился во время обновления: ' + name)
+            create_parents(path.parent, root, created_dirs)
+            replace_guide_file(path, content)
+            written.append(name)
+    except BaseException as original:
+        try:
+            for name in reversed(written):
+                path = target_path(root, name)
+                if path.read_bytes() != changes[name]:
+                    raise DeliveryError('Файл изменён параллельно: ' + name)
+                if before[name] is None:
+                    path.unlink()
+                else:
+                    replace_guide_file(path, before[name])
+            for directory in reversed(created_dirs):
+                directory.rmdir()
+        except BaseException as rollback_error:
+            release_lock = False
+            raise DeliveryError('Обновление памятки прервано; lock сохранён. Не удаляйте файлы, обратитесь к преподавателю.') from rollback_error
+        raise original
+    finally:
+        if release_lock:
+            lock.unlink()
+    result.update(files=sorted(changes), applied=bool(changes), already_applied=not changes)
     return result
 
 
@@ -457,10 +607,11 @@ def main():
     parser.add_argument('lab', nargs='?', type=int, choices=range(1, 7))
     parser.add_argument('--variant', choices=ORDER, help='При первой загрузке; затем вариант берётся из .unipay/course.json')
     parser.add_argument('--target', type=Path, default=Path('.'), help='Корень репозитория группы; по умолчанию текущая папка')
+    parser.add_argument('--update-guide', action='store_true', help='Обновить только памятку уже полученной ЛР1; решения не менять')
     parser.add_argument('--list', action='store_true', help='Показать опубликованные номера без установки')
     parser.add_argument('--dry-run', action='store_true', help='Показать изменения без записи')
     parser.add_argument('--yes', action='store_true', help='Явно подтвердить добавление без интерактивного вопроса')
-    parser.add_argument('--version', action='version', version='UniPay client 1')
+    parser.add_argument('--version', action='version', version='UniPay client 2')
     args = parser.parse_args()
     try:
         if sys.version_info < (3, 10):
@@ -494,7 +645,7 @@ def main():
             if choice not in ('1', '2', '3', '4', '5', '6'):
                 raise DeliveryError('Номер должен быть от 1 до 6.')
             number = int(choice)
-        install(number, variant, root, catalog, yes=args.yes, dry_run=args.dry_run)
+        install(number, variant, root, catalog, yes=args.yes, dry_run=args.dry_run, update_guide=args.update_guide)
     except (DeliveryError, OSError, EOFError) as error:
         parser.exit(2, f'Получение остановлено: {error}\n')
     except KeyboardInterrupt:
