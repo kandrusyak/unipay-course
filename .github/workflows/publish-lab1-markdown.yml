@@ -91,6 +91,8 @@ jobs:
           unipay.validate_catalog(unipay.decode_json((ROOT/'catalog.json').read_bytes()))
           (ROOT/'checks/lab01-docs-update.txt').unlink()
           (ROOT/'.github/workflows/publish-lab1-markdown.yml').unlink()
+      - name: Install public verification dependency
+        run: python -m pip install pytest==9.0.2
       - name: Verify public packages before commit
         run: python check_public.py --run-lab1-tests
       - name: Commit generated package revision
