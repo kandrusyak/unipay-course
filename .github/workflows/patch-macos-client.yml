@@ -1,0 +1,83 @@
+name: Publish macOS client fix once
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  patch:
+    if: contains(github.event.head_commit.message, '[publish-macos-client]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Patch only the path-safety block
+        shell: python
+        run: |
+          from pathlib import Path
+          path = Path('unipay.py')
+          text = path.read_text(encoding='utf-8')
+          start = text.index('\ndef no_links(path):')
+          end = text.index('\ndef relative_file(name):', start)
+          replacement = '''
+          def _reject_link(path):
+              """Проверить один компонент, не переходя по ссылке/reparse point."""
+              if path.is_symlink() or (hasattr(path, 'is_junction') and path.is_junction()):
+                  raise DeliveryError(f'Ссылки и junction не поддерживаются: {path}')
+              # Path.is_junction появился позже Python 3.10. Проверяем Windows
+              # reparse-атрибут без перехода по ссылке и на старых интерпретаторах.
+              try:
+                  attributes = getattr(path.lstat(), 'st_file_attributes', 0)
+              except FileNotFoundError:
+                  return
+              if attributes & stat.FILE_ATTRIBUTE_REPARSE_POINT:
+                  raise DeliveryError(f'Ссылки и reparse points не поддерживаются: {path}')
+
+
+          def no_links(path):
+              """Запретить ссылки в уже канонизированном управляемом пути."""
+              for part in (path, *path.parents):
+                  _reject_link(part)
+
+
+          def absolute_folder(path):
+              # Внешние родители пути не принадлежат UniPay. На macOS, например,
+              # /var -> /private/var, а tempfile обычно создаёт каталоги в /var/folders.
+              # Запрещаем ссылку в самой выбранной корневой папке, затем один раз
+              # канонизируем внешнюю часть. Все дочерние пути дальше строятся уже от
+              # канонического root и строго проверяются no_links()/target_path().
+              original = Path(path).absolute()
+              _reject_link(original)
+              try:
+                  path = original.resolve(strict=False)
+              except (OSError, RuntimeError) as error:
+                  raise DeliveryError(f'Не удалось нормализовать путь: {original}') from error
+              no_links(path)
+              if path.exists() and not path.is_dir():
+                  raise DeliveryError(f'Нужна папка: {path}')
+              return path
+          '''
+          # Remove the indentation used only by the YAML heredoc above.
+          import textwrap
+          replacement = textwrap.dedent(replacement).strip('\n')
+          updated = text[:start] + '\n' + replacement + '\n' + text[end:]
+          if updated == text:
+              raise SystemExit('No change')
+          path.write_text(updated, encoding='utf-8', newline='\n')
+          compile(updated, 'unipay.py', 'exec')
+      - run: python unipay.py --help
+      - run: python check_public.py --run-lab1-tests
+      - run: git diff --check
+      - name: Commit the generated client fix
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add unipay.py
+          git commit -m "Fix macOS system symlink handling in unipay.py"
+          git push origin HEAD:main
