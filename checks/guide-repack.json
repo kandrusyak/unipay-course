@@ -1,0 +1,189 @@
+{
+  "pdf_sha256": "cc16c8fb4bac10cafe507c59ca753de9616d208911481aee4ed0c2f7e399a00a",
+  "previous_public_commit": "e4a621591d75a4f8640f39c9e04483de72af227d",
+  "scope": "Only START_HERE.md and START_HERE.pdf; no lab code/test changes",
+  "variants": {
+    "account": {
+      "added_files": [
+        "START_HERE.pdf"
+      ],
+      "after": "d3f1a080aba71d2e257fe6c0925538f2518e3db38b1c8d8ea61dd30da6f98427",
+      "before": "fbed64cc00ebd527e05e2b9f47304296e96091077b26022ba03fb74a30a87262",
+      "changed_files": [
+        "START_HERE.md"
+      ],
+      "source_commit": "d25eb9b55917d56d3de1f042ac9102a5345a85c2",
+      "source_tree": "e7c46c3eb938dfbea061c5404d3ab8af42a67035",
+      "unchanged_files": 28
+    },
+    "audit": {
+      "added_files": [
+        "START_HERE.pdf"
+      ],
+      "after": "98666ab7d81f9817b65a25f66741b02ab948bc9980b5492faf8cdb50599fd6df",
+      "before": "b0c430abc3dfcf5ab32b1b414b12e2d1e9a163ae37d7c9fa6b34aa7bfc19e77b",
+      "changed_files": [
+        "START_HERE.md"
+      ],
+      "source_commit": "d25eb9b55917d56d3de1f042ac9102a5345a85c2",
+      "source_tree": "e7c46c3eb938dfbea061c5404d3ab8af42a67035",
+      "unchanged_files": 27
+    },
+    "authorization": {
+      "added_files": [
+        "START_HERE.pdf"
+      ],
+      "after": "f5f6c5caece3999e0c57a18e1830ce102de178c824e99697d1b0ca343467e2b0",
+      "before": "25f92e36406f1ef5a0d44bd22e32cebcaaffa9271ef18efc15853d39d20e354d",
+      "changed_files": [
+        "START_HERE.md"
+      ],
+      "source_commit": "d25eb9b55917d56d3de1f042ac9102a5345a85c2",
+      "source_tree": "e7c46c3eb938dfbea061c5404d3ab8af42a67035",
+      "unchanged_files": 27
+    },
+    "card": {
+      "added_files": [
+        "START_HERE.pdf"
+      ],
+      "after": "9052f8078be3e1814367f4bb6d69f70431480e590fbecdc81818ffb4d6315fa2",
+      "before": "b07fc11b49ab69c1737b56b7d98156ccc03f7a9d9a57ac06df8d9b1d7263951e",
+      "changed_files": [
+        "START_HERE.md"
+      ],
+      "source_commit": "d25eb9b55917d56d3de1f042ac9102a5345a85c2",
+      "source_tree": "e7c46c3eb938dfbea061c5404d3ab8af42a67035",
+      "unchanged_files": 27
+    },
+    "clearing": {
+      "added_files": [
+        "START_HERE.pdf"
+      ],
+      "after": "936c075eee22fbe928ab4d8c131b63eb7c3b476f470397ddfe1378b44f4e3ea5",
+      "before": "96bd1d1f39defd3faf594354e61a4e54de67bdb1692cea533032bf378d5fd72c",
+      "changed_files": [
+        "START_HERE.md"
+      ],
+      "source_commit": "d25eb9b55917d56d3de1f042ac9102a5345a85c2",
+      "source_tree": "e7c46c3eb938dfbea061c5404d3ab8af42a67035",
+      "unchanged_files": 27
+    },
+    "customer": {
+      "added_files": [
+        "START_HERE.pdf"
+      ],
+      "after": "4b82efcfe725813dadb184a8c25cd2c938c5ef32f53a4cc2d726bdcfed02cc5d",
+      "before": "76116ee031df86df2f4e1c084cd59b206443ff5d461801e98bb0568796ce6f76",
+      "changed_files": [
+        "START_HERE.md"
+      ],
+      "source_commit": "d25eb9b55917d56d3de1f042ac9102a5345a85c2",
+      "source_tree": "e7c46c3eb938dfbea061c5404d3ab8af42a67035",
+      "unchanged_files": 27
+    },
+    "fraud": {
+      "added_files": [
+        "START_HERE.pdf"
+      ],
+      "after": "e8981339825d84f5fd6cae706720d034533d31426840e895debd50661db012e3",
+      "before": "f92816d0a785a34198e5d6d19b8c3497747be5a3ef4ce5fea9b7d93467e3888d",
+      "changed_files": [
+        "START_HERE.md"
+      ],
+      "source_commit": "d25eb9b55917d56d3de1f042ac9102a5345a85c2",
+      "source_tree": "e7c46c3eb938dfbea061c5404d3ab8af42a67035",
+      "unchanged_files": 27
+    },
+    "fx": {
+      "added_files": [
+        "START_HERE.pdf"
+      ],
+      "after": "078d1417902106975929174fc6010fe5e4580951a8e460718b0aa42803110747",
+      "before": "2c95791861edea7d436110defc56fa85d87d2c17c8c72f0232f5766d8bb8a807",
+      "changed_files": [
+        "START_HERE.md"
+      ],
+      "source_commit": "d25eb9b55917d56d3de1f042ac9102a5345a85c2",
+      "source_tree": "e7c46c3eb938dfbea061c5404d3ab8af42a67035",
+      "unchanged_files": 27
+    },
+    "ledger": {
+      "added_files": [
+        "START_HERE.pdf"
+      ],
+      "after": "69df40ecdbf8bc4672f0df97453699a780e2dca7cc12be2b846c963fcb80a61a",
+      "before": "0ddbaf57ed7056f450d7420fda4a33c333fe37fef6579c42d0a9e21e639051d2",
+      "changed_files": [
+        "START_HERE.md"
+      ],
+      "source_commit": "d25eb9b55917d56d3de1f042ac9102a5345a85c2",
+      "source_tree": "e7c46c3eb938dfbea061c5404d3ab8af42a67035",
+      "unchanged_files": 27
+    },
+    "limits": {
+      "added_files": [
+        "START_HERE.pdf"
+      ],
+      "after": "03099b8fce5565027b83961addea9263f43a3d10a7d5a4f82ba170d0e8c23795",
+      "before": "4e6f90d101879b6b7538d67ef0006db89bb279377594521ff61c6ef5c0bc2e55",
+      "changed_files": [
+        "START_HERE.md"
+      ],
+      "source_commit": "d25eb9b55917d56d3de1f042ac9102a5345a85c2",
+      "source_tree": "e7c46c3eb938dfbea061c5404d3ab8af42a67035",
+      "unchanged_files": 26
+    },
+    "merchant": {
+      "added_files": [
+        "START_HERE.pdf"
+      ],
+      "after": "7f1c103328749d0a2ec1446efe613e91546a7ee96b6c170da2f2fc38335e021e",
+      "before": "595ba8e31e05cdb7e0cc576ab4db121fefef9537b1522460f31e19fc032219aa",
+      "changed_files": [
+        "START_HERE.md"
+      ],
+      "source_commit": "d25eb9b55917d56d3de1f042ac9102a5345a85c2",
+      "source_tree": "e7c46c3eb938dfbea061c5404d3ab8af42a67035",
+      "unchanged_files": 27
+    },
+    "notification": {
+      "added_files": [
+        "START_HERE.pdf"
+      ],
+      "after": "b62d7efb47265b2aadbe3073b111d221d51b0d12a83834ba96899f0c215cfd58",
+      "before": "ea49bf198e3b52b693468300453390d7226354246e4e5d42db986d8d715da759",
+      "changed_files": [
+        "START_HERE.md"
+      ],
+      "source_commit": "d25eb9b55917d56d3de1f042ac9102a5345a85c2",
+      "source_tree": "e7c46c3eb938dfbea061c5404d3ab8af42a67035",
+      "unchanged_files": 26
+    },
+    "reporting": {
+      "added_files": [
+        "START_HERE.pdf"
+      ],
+      "after": "388f48664e388a3448dd5757148323f382b097e71268b9abbd4a418172072ece",
+      "before": "62acf16711c6bc31570dbafe583277837381aed5b20dce22926c29436e70a9c4",
+      "changed_files": [
+        "START_HERE.md"
+      ],
+      "source_commit": "d25eb9b55917d56d3de1f042ac9102a5345a85c2",
+      "source_tree": "e7c46c3eb938dfbea061c5404d3ab8af42a67035",
+      "unchanged_files": 27
+    },
+    "settlement": {
+      "added_files": [
+        "START_HERE.pdf"
+      ],
+      "after": "69ef8f886fa301bb31cdc107f6a8d71a4603d83da1427c024427b6cc0a74d5bd",
+      "before": "e3037a47a5bda5ccc078f0f6fd95ab264f1dbb9c743d82bc45aeee6e06023778",
+      "changed_files": [
+        "START_HERE.md"
+      ],
+      "source_commit": "d25eb9b55917d56d3de1f042ac9102a5345a85c2",
+      "source_tree": "e7c46c3eb938dfbea061c5404d3ab8af42a67035",
+      "unchanged_files": 27
+    }
+  }
+}

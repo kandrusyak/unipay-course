@@ -47,7 +47,7 @@ def offline(run_tests):
                 for name, text in files.items():
                     target = bundle / 'payload' / unipay.relative_file(name)
                     target.parent.mkdir(parents=True, exist_ok=True)
-                    target.write_bytes(text.encode('utf-8'))
+                    target.write_bytes(unipay.public_file_bytes(name, text))
                     if name.endswith('.py'):
                         ast.parse(text, filename=name)
                 unipay.load_bundle(bundle)
@@ -62,7 +62,7 @@ def offline(run_tests):
                     if run_tests:
                         command(target, 'check.py', 'lab01')
                     for name, content in files.items():
-                        assert (target / name).read_bytes() == content.encode('utf-8')
+                        assert (target / name).read_bytes() == unipay.public_file_bytes(name, content)
                     changed = target / 'labs/lab01/app/domain/__init__.py'
                     changed.write_text('# student work must survive a repeated download\n', encoding='utf-8')
                     before = changed.read_bytes()
@@ -89,6 +89,8 @@ def live():
         assert 'Открытые лабораторные: 1' in listing
         command(target, 'unipay.py', '1', '--variant', 'card', '--yes')
         command(target, 'check.py', 'lab01')
+        assert (target / 'START_HERE.pdf').read_bytes() == (ROOT / 'START_HERE.pdf').read_bytes()
+        assert (target / 'START_HERE.md').read_bytes() == (ROOT / 'START_HERE.md').read_bytes()
         changed = target / 'labs/lab01/app/domain/__init__.py'
         changed.write_text('# retained student modification\n', encoding='utf-8')
         command(target, 'unipay.py', '1', '--yes')
