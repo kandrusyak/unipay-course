@@ -30,29 +30,42 @@ def digest(data):
     return hashlib.sha256(data).hexdigest()
 
 
+def _reject_link(path):
+    """Проверить один компонент, не переходя по ссылке/reparse point."""
+    if path.is_symlink() or (hasattr(path, 'is_junction') and path.is_junction()):
+        raise DeliveryError(f'Ссылки и junction не поддерживаются: {path}')
+    # Path.is_junction появился позже Python 3.10. Проверяем Windows
+    # reparse-атрибут без перехода по ссылке и на старых интерпретаторах.
+    try:
+        attributes = getattr(path.lstat(), 'st_file_attributes', 0)
+    except FileNotFoundError:
+        return
+    if attributes & stat.FILE_ATTRIBUTE_REPARSE_POINT:
+        raise DeliveryError(f'Ссылки и reparse points не поддерживаются: {path}')
+
+
 def no_links(path):
-    # Проверка исходного пути до нормализации не прячет ссылку за resolve().
+    """Запретить ссылки в уже канонизированном управляемом пути."""
     for part in (path, *path.parents):
-        if part.is_symlink() or (hasattr(part, 'is_junction') and part.is_junction()):
-            raise DeliveryError(f'Ссылки и junction не поддерживаются: {part}')
-        # Path.is_junction появился позже Python 3.10. Проверяем Windows
-        # reparse-атрибут без перехода по ссылке и на старых интерпретаторах.
-        try:
-            attributes = getattr(part.lstat(), 'st_file_attributes', 0)
-        except FileNotFoundError:
-            continue
-        if attributes & stat.FILE_ATTRIBUTE_REPARSE_POINT:
-            raise DeliveryError(f'Ссылки и reparse points не поддерживаются: {part}')
+        _reject_link(part)
 
 
 def absolute_folder(path):
-    path = Path(path).absolute()
+    # Внешние родители пути не принадлежат UniPay. На macOS, например,
+    # /var -> /private/var, а tempfile обычно создаёт каталоги в /var/folders.
+    # Запрещаем ссылку в самой выбранной корневой папке, затем один раз
+    # канонизируем внешнюю часть. Все дочерние пути дальше строятся уже от
+    # канонического root и строго проверяются no_links()/target_path().
+    original = Path(path).absolute()
+    _reject_link(original)
+    try:
+        path = original.resolve(strict=False)
+    except (OSError, RuntimeError) as error:
+        raise DeliveryError(f'Не удалось нормализовать путь: {original}') from error
     no_links(path)
-    path = Path(os.path.abspath(path))
     if path.exists() and not path.is_dir():
         raise DeliveryError(f'Нужна папка: {path}')
     return path
-
 
 def relative_file(name):
     if not isinstance(name, str) or not name or '\\' in name:
