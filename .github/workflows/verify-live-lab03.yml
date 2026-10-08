@@ -1,0 +1,87 @@
+name: Verify live Lab3 downloads
+on:
+  push:
+    branches: [ops/lab03-live-check-20261008]
+    paths: ['.github/workflows/verify-live-lab03.yml']
+permissions:
+  contents: read
+env:
+  PYTHONUTF8: '1'
+  PYTHONIOENCODING: utf-8
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Download and install every published variant from public main
+        shell: python
+        run: |
+          import contextlib, hashlib, importlib.util, io, json, os, subprocess, sys, tempfile, time
+          from pathlib import Path
+          root = Path.cwd()
+          expected = '70d5bb860fcbc10f142d6fb13dd9ed1351374218'
+          assert subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip() == expected
+          loader = root / 'unipay.py'
+          assert hashlib.sha256(loader.read_bytes()).hexdigest() == '1f6fb6ff6c9fab28ca33fe87fa4b1bf2f11e690c9e28fcdb7d0e76b767937340'
+          spec = importlib.util.spec_from_file_location('published_unipay', loader)
+          client = importlib.util.module_from_spec(spec)
+          sys.modules[spec.name] = client
+          spec.loader.exec_module(client)
+          for attempt in range(19):
+              catalog = client.validate_catalog(json.loads(client.download('catalog.json', 1048576)))
+              if set(catalog['labs']) == {'1', '2', '3'}:
+                  break
+              if attempt == 18:
+                  raise AssertionError('Public CDN has not served the published catalog')
+              time.sleep(10)
+          assert len(catalog['labs']['3']) == 14
+          assert all(e['source_commit'] == 'dd84e4c1b25fb000b93255220e421d19fcce3e17' for e in catalog['labs']['3'].values())
+          subprocess.run([sys.executable, str(loader), '--list'], check=True)
+          def files(target):
+              return {p.relative_to(target): p.read_bytes() for p in target.rglob('*') if p.is_file()}
+          def install(*args, **kwargs):
+              with contextlib.redirect_stdout(io.StringIO()):
+                  return client.install(*args, **kwargs)
+          rows = []
+          with tempfile.TemporaryDirectory(prefix='unipay-live-') as temp:
+              for variant in sorted(catalog['labs']['3']):
+                  target = Path(temp) / variant
+                  for number in (1, 2):
+                      assert install(number, variant, target, catalog, yes=True)['applied']
+                      p = target / f'labs/lab{number:02d}/app/domain/{variant}.py'
+                      p.write_bytes(p.read_bytes() + b'\n# preserved previous student work\n')
+                  before = files(target)
+                  assert not install(3, variant, target, catalog, dry_run=True)['applied']
+                  assert files(target) == before
+                  assert install(3, variant, target, catalog, yes=True)['applied']
+                  assert all((target / p).read_bytes() == data for p, data in before.items())
+                  p = target / f'labs/lab03/app/domain/{variant}.py'
+                  p.write_bytes(p.read_bytes() + b'\n# preserved current student work\n')
+                  after = files(target)
+                  assert install(3, variant, target, catalog, yes=True)['already_applied']
+                  assert files(target) == after
+                  try:
+                      install(4, variant, target, catalog, yes=True)
+                  except client.DeliveryError:
+                      pass
+                  else:
+                      raise AssertionError('Lab4 unexpectedly open')
+                  assert not any((target / f'labs/lab{n:02d}').exists() for n in (4, 5, 6))
+                  rows.append(dict(variant=variant, live_download=True, upgrade=True, dry_run=True, previous_work_preserved=True, repeat_preserved=True, future_labs_closed=True))
+                  print('PASS live public download and safe upgrade:', variant)
+          report = dict(public_commit=expected, source_commit='dd84e4c1b25fb000b93255220e421d19fcce3e17', labs=sorted(catalog['labs']), rows=rows, client_unchanged=True)
+          Path(os.environ['RUNNER_TEMP'], 'lab03-live-verification.json').write_text(json.dumps(report, indent=2) + '\n')
+          print('PASS: Lab3 is live for all 14 variants; Labs4-6 remain closed.')
+      - uses: actions/upload-artifact@v7
+        with:
+          name: lab03-live-verification
+          path: ${{ runner.temp }}/lab03-live-verification.json
+          if-no-files-found: error
+          retention-days: 7
