@@ -1,0 +1,49 @@
+name: Materialize approved Lab3 release
+on:
+  push:
+    branches: [ops/lab03-materialize-20261008]
+    paths: ['.github/release/**', '.github/workflows/materialize-lab03.yml']
+permissions:
+  contents: write
+env:
+  PYTHONUTF8: '1'
+  PYTHONIOENCODING: utf-8
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - run: python -m pip install pytest==9.0.2
+      - name: Recreate reviewed packets and verify all fourteen upgrades
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse origin/main)" = b025116514180d26da54d7b07cd67e70ba54a449
+          cat .github/release/lab03-recipe-1.b64 .github/release/lab03-recipe-2.b64 > .github/release/lab03-recipe.b64
+          python .github/release/materialize-lab03.py
+      - name: Create clean candidate containing only authorized public files
+        run: |
+          set -euo pipefail
+          BASE=b025116514180d26da54d7b07cd67e70ba54a449
+          export GIT_INDEX_FILE="$RUNNER_TEMP/lab03-final-index"
+          git read-tree "$BASE"
+          git add -f catalog.json bundles
+          TREE=$(git write-tree)
+          test "$TREE" = f46f00b98b04d5fef2d69e434eaab827e2cf69cb
+          git diff --cached --stat "$BASE"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          COMMIT=$(printf '%s\n\n%s\n' 'Open Lab 3 for all fourteen variants' 'Source dd84e4c1b25fb000b93255220e421d19fcce3e17. Preserve earlier assignments, catalog receipts and installer. Restore the exact original Merchant/Lab2 transport byte. Labs4-6 remain closed.' | git commit-tree "$TREE" -p "$BASE")
+          unset GIT_INDEX_FILE
+          git worktree add --detach "$RUNNER_TEMP/lab03-final" "$COMMIT"
+          cd "$RUNNER_TEMP/lab03-final"
+          python check_public.py --run-lab1-tests
+          git push origin "$COMMIT:refs/heads/release/lab03-ready-20261008"
+          echo "VERIFIED_RELEASE_COMMIT=$COMMIT"
+          echo "VERIFIED_RELEASE_TREE=$TREE"
+          echo "Verified all 14 upgrades; main has not been changed by this job." >> "$GITHUB_STEP_SUMMARY"
