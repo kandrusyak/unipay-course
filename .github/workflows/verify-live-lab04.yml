@@ -1,0 +1,29 @@
+name: Verify live Lab4 downloads
+on:
+  push:
+    branches: [ops/lab04-materialize-20261023]
+    paths: ['.github/workflows/verify-live-lab04.yml']
+permissions:
+  contents: read
+env:
+  PYTHONUTF8: '1'
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - run: python -m pip install pytest==9.0.2
+      - name: Download all fourteen variants and check installed Lab4 starters
+        run: python .github/release/verify-live-lab04.py
+      - uses: actions/upload-artifact@v7
+        with:
+          name: lab04-live-verification
+          path: lab04-live-verification.json
+          if-no-files-found: error
+          retention-days: 7
