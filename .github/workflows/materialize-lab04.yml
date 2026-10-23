@@ -1,0 +1,51 @@
+name: Materialize approved Lab4 release
+on:
+  push:
+    branches: [ops/lab04-materialize-20261023]
+    paths: ['.github/workflows/materialize-lab04.yml']
+permissions:
+  contents: write
+env:
+  PYTHONUTF8: '1'
+  RECIPE_SHA256: 9bba0c3f8066fc15e1d44cf84f92f7caff927ca6721bb8a4a01afa69cf31a38a
+  CANDIDATE_TREE: 72116bf1b3a0ebd1e2e02bcc7fdfc5d61d04912b
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - run: python -m pip install pytest==9.0.2
+      - name: Import the reviewed student-only artifact
+        shell: python
+        run: |
+          import hashlib, io, os, re, urllib.request, zipfile
+          from pathlib import Path
+          # This short-lived URL grants access only to the Lab4 student release:
+          # fourteen public starter packets, catalog, delta and verification report.
+          # It contains no instructor generators, reference solutions or future labs.
+          url = 'https://sdmntprnortheu.oaiusercontent.com/files/00000000-9310-81f4-a76f-e34b3e45635a/raw?se=2026-10-23T20%3A45%3A18Z&sp=r&sv=2026-02-06&sr=b&scid=6838e56e-7bcc-56ef-ad8b-a8c3b3385c9d&skoid=c30e7ce7-1f51-4051-a377-288cdba21c02&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-10-23T06%3A56%3A03Z&ske=2026-10-24T06%3A56%3A03Z&sks=b&skv=2026-02-06&sig=3agp1kRQazvp3mmR4FguyOsat56dXGN9fyKufo8Wn5Y%3D'
+          with urllib.request.urlopen(url, timeout=30) as response:
+              data = response.read(250001)
+          assert len(data) == 148480
+          assert hashlib.sha256(data).hexdigest() == 'ed86bad14474cdeaea97964b373cfe1914ee696ef40429d6ce5c768d6aeae869'
+          with zipfile.ZipFile(io.BytesIO(data)) as archive:
+              names = archive.namelist()
+              assert len(names) == 17
+              assert all(n in {'catalog.json', 'recipe.b64', 'verification.json'} or re.fullmatch(r'bundles/[a-f0-9]{64}\.json', n) for n in names)
+              recipe = archive.read('recipe.b64')
+          assert hashlib.sha256(recipe).hexdigest() == os.environ['RECIPE_SHA256']
+          Path('.github/release/lab04-recipe.b64').write_bytes(recipe)
+      - name: Verify fourteen upgrades and create clean candidate
+        run: python .github/release/materialize-lab04.py
+      - uses: actions/upload-artifact@v7
+        with:
+          name: lab04-public-verification
+          path: lab04-public-verification.json
+          if-no-files-found: error
+          retention-days: 7
