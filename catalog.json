@@ -343,6 +343,120 @@
         "source_tree": "aa011bdfdbc0cd1baae91f4d25b912209c6d3fd1",
         "variant": "settlement"
       }
+    },
+    "4": {
+      "account": {
+        "path": "bundles/fab605a5f2c8835c329e19619390333ba2e5c6dff36d2b3174778bcbd13ad706.json",
+        "sha256": "fab605a5f2c8835c329e19619390333ba2e5c6dff36d2b3174778bcbd13ad706",
+        "size": 12076,
+        "source_commit": "db501bfc09e0518756618f258511d92bfb35d7a9",
+        "source_tree": "6d68d4cfbc3004931e088584c899226c4a327dcc",
+        "variant": "account"
+      },
+      "audit": {
+        "path": "bundles/8f8c6d2d899679ae41cf0d681777d132d263b67d2c573681eb641de56f07f8fd.json",
+        "sha256": "8f8c6d2d899679ae41cf0d681777d132d263b67d2c573681eb641de56f07f8fd",
+        "size": 11608,
+        "source_commit": "db501bfc09e0518756618f258511d92bfb35d7a9",
+        "source_tree": "6d68d4cfbc3004931e088584c899226c4a327dcc",
+        "variant": "audit"
+      },
+      "authorization": {
+        "path": "bundles/ba9712de132896b8a3244c8e450e512e81a14cf286319aedc30ad48124c8f6ac.json",
+        "sha256": "ba9712de132896b8a3244c8e450e512e81a14cf286319aedc30ad48124c8f6ac",
+        "size": 11476,
+        "source_commit": "db501bfc09e0518756618f258511d92bfb35d7a9",
+        "source_tree": "6d68d4cfbc3004931e088584c899226c4a327dcc",
+        "variant": "authorization"
+      },
+      "card": {
+        "path": "bundles/e5d70c59ac8bcfbbef8a2e6f8a570730aeb0389cc880011297f158f17294c9e9.json",
+        "sha256": "e5d70c59ac8bcfbbef8a2e6f8a570730aeb0389cc880011297f158f17294c9e9",
+        "size": 12308,
+        "source_commit": "db501bfc09e0518756618f258511d92bfb35d7a9",
+        "source_tree": "6d68d4cfbc3004931e088584c899226c4a327dcc",
+        "variant": "card"
+      },
+      "clearing": {
+        "path": "bundles/8ef0c51a3ec2824e3158550b404d617e2c6b8745e3523d87496fc7250cf4a7f2.json",
+        "sha256": "8ef0c51a3ec2824e3158550b404d617e2c6b8745e3523d87496fc7250cf4a7f2",
+        "size": 12284,
+        "source_commit": "db501bfc09e0518756618f258511d92bfb35d7a9",
+        "source_tree": "6d68d4cfbc3004931e088584c899226c4a327dcc",
+        "variant": "clearing"
+      },
+      "customer": {
+        "path": "bundles/6b5585e5317e415ef530598e66ce4cfa845974d3644db57a0a5654111b90f7c4.json",
+        "sha256": "6b5585e5317e415ef530598e66ce4cfa845974d3644db57a0a5654111b90f7c4",
+        "size": 11820,
+        "source_commit": "db501bfc09e0518756618f258511d92bfb35d7a9",
+        "source_tree": "6d68d4cfbc3004931e088584c899226c4a327dcc",
+        "variant": "customer"
+      },
+      "fraud": {
+        "path": "bundles/ae369d835543bcc3a53fb05059642f4ac0f6c8b1feeccfe8f7a9201e6318d574.json",
+        "sha256": "ae369d835543bcc3a53fb05059642f4ac0f6c8b1feeccfe8f7a9201e6318d574",
+        "size": 11172,
+        "source_commit": "db501bfc09e0518756618f258511d92bfb35d7a9",
+        "source_tree": "6d68d4cfbc3004931e088584c899226c4a327dcc",
+        "variant": "fraud"
+      },
+      "fx": {
+        "path": "bundles/50e015cac7150ca51e084de3b851a20206c45a180418ccc837e53e3e5aa25ffb.json",
+        "sha256": "50e015cac7150ca51e084de3b851a20206c45a180418ccc837e53e3e5aa25ffb",
+        "size": 10868,
+        "source_commit": "db501bfc09e0518756618f258511d92bfb35d7a9",
+        "source_tree": "6d68d4cfbc3004931e088584c899226c4a327dcc",
+        "variant": "fx"
+      },
+      "ledger": {
+        "path": "bundles/255ea886aa0741a47fadd8e649c549ea2bad38416f6b3d5323b00aa92a1e20e1.json",
+        "sha256": "255ea886aa0741a47fadd8e649c549ea2bad38416f6b3d5323b00aa92a1e20e1",
+        "size": 11384,
+        "source_commit": "db501bfc09e0518756618f258511d92bfb35d7a9",
+        "source_tree": "6d68d4cfbc3004931e088584c899226c4a327dcc",
+        "variant": "ledger"
+      },
+      "limits": {
+        "path": "bundles/89298c54b76f882df2a5d7a53b73a7fea1a27a2ec81858e54f1cc77d1400653d.json",
+        "sha256": "89298c54b76f882df2a5d7a53b73a7fea1a27a2ec81858e54f1cc77d1400653d",
+        "size": 11068,
+        "source_commit": "db501bfc09e0518756618f258511d92bfb35d7a9",
+        "source_tree": "6d68d4cfbc3004931e088584c899226c4a327dcc",
+        "variant": "limits"
+      },
+      "merchant": {
+        "path": "bundles/a02f4c2518bc1699db26ce7323fa377885678537e62d88d34bdf8313310c3545.json",
+        "sha256": "a02f4c2518bc1699db26ce7323fa377885678537e62d88d34bdf8313310c3545",
+        "size": 11848,
+        "source_commit": "db501bfc09e0518756618f258511d92bfb35d7a9",
+        "source_tree": "6d68d4cfbc3004931e088584c899226c4a327dcc",
+        "variant": "merchant"
+      },
+      "notification": {
+        "path": "bundles/e8d5d896b0eaafae3ee925535bd35acd248c50a8223afbabb2789889b664c093.json",
+        "sha256": "e8d5d896b0eaafae3ee925535bd35acd248c50a8223afbabb2789889b664c093",
+        "size": 10296,
+        "source_commit": "db501bfc09e0518756618f258511d92bfb35d7a9",
+        "source_tree": "6d68d4cfbc3004931e088584c899226c4a327dcc",
+        "variant": "notification"
+      },
+      "reporting": {
+        "path": "bundles/5dfa6a757094fa276ffda41f4a5c2ad722f0fd6cbc7075b9f5d0061c9f4f1d03.json",
+        "sha256": "5dfa6a757094fa276ffda41f4a5c2ad722f0fd6cbc7075b9f5d0061c9f4f1d03",
+        "size": 11876,
+        "source_commit": "db501bfc09e0518756618f258511d92bfb35d7a9",
+        "source_tree": "6d68d4cfbc3004931e088584c899226c4a327dcc",
+        "variant": "reporting"
+      },
+      "settlement": {
+        "path": "bundles/6d7a18e8cdc289baaf6cfccc28102639a61a9a3e25c8277742d3c86bbf90d31b.json",
+        "sha256": "6d7a18e8cdc289baaf6cfccc28102639a61a9a3e25c8277742d3c86bbf90d31b",
+        "size": 11652,
+        "source_commit": "db501bfc09e0518756618f258511d92bfb35d7a9",
+        "source_tree": "6d68d4cfbc3004931e088584c899226c4a327dcc",
+        "variant": "settlement"
+      }
     }
   },
   "minimum_client": 2
